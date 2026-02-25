@@ -1,11 +1,12 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:work_with_api/data.dart';
 import 'package:work_with_api/globals.dart';
+import 'package:work_with_api/sections/facts.dart';
+import 'package:work_with_api/sections/food.dart';
+import 'package:work_with_api/sections/map.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
   initPrefs();
   runApp(const MyApp());
 }
@@ -15,145 +16,67 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: MapPage());
+    return MaterialApp(home: MainPage());
   }
 }
 
-class MapPage extends StatefulWidget {
-  const MapPage({super.key});
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
 
   @override
-  State<MapPage> createState() => _MapPageState();
+  State<MainPage> createState() => _MainPageState();
 }
 
-class _MapPageState extends State<MapPage> {
-  late final String? getLat;
-  late final String? geoLon;
+class _MainPageState extends State<MainPage> {
+  @override
+  void initState() {
+    super.initState();
+    pageController = PageController(initialPage: page);
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: 670,
-              child: FlutterMap(
-                mapController: mapController,
-                options: MapOptions(
-                  initialZoom: 9.2,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: '',
-                  ),
-                  RichAttributionWidget(
-                    attributions: [
-                      TextSourceAttribution(
-                          'OpenStreetMap contributors',
-                          onTap: () {}
-                      ),
-                    ],
-                  ),
-                  ],
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(24),
-              height: 250,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    spreadRadius: 4,
-                    blurRadius: 10,
-                    offset: Offset(0, 1),
-                    color: Colors.black.withOpacity(.1),
-                  ),
-                ],
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(20),
-                  topLeft: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    'Поиск',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff1E1E1E),
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  TextField(
-                    controller: addressController,
-                    cursorColor: Color(0xff1E1E1E),
-                    decoration: InputDecoration(
-                      fillColor: Color(0xffF2F2F2),
-                      filled: true,
-                      hintText: 'Введите адрес',
-                      hintStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Color(0xffA1A1A1),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        borderSide: BorderSide(color: Color(0xffF2F2F2)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        borderSide: BorderSide(color: Color(0xffF2F2F2)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        borderSide: BorderSide(color: Color(0xffF2F2F2)),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(335, 58),
-                        backgroundColor: Color(0xffC91C1C),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                      ),
-                      onPressed: () {
-                        if (addressController.text.isNotEmpty) {
-                          getAddress();
-                          print('Координаты получены!');
-                        } else {
-                          print('Ошибка!');
-                        }
-                      },
-                      child: Text(
-                        'Проверить',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+      bottomNavigationBar: CurvedNavigationBar(
+        key: bottomNavigationKey,
+        index: page,
+        height: 70,
+        items: [
+          Icon(Icons.map, size: 30),
+          Icon(Icons.pets, size: 30),
+          Icon(Icons.fastfood, size: 30),
+          Icon(Icons.list, size: 30),
+        ],
+        color: Colors.white,
+        buttonBackgroundColor: Color(0xffF2F2F2),
+        backgroundColor: Color(0xffDDDDDD),
+        animationCurve: Curves.easeIn,
+        animationDuration: Duration(milliseconds: 600),
+        onTap: (index) {
+          setState(() {
+            page = index;
+          });
+          animatePage();
+        },
+        letIndexChange: (index) => true,
       ),
+      body: PageView(controller: pageController,
+      physics: NeverScrollableScrollPhysics(),
+      onPageChanged: (index) {
+        setState(() {
+          page = index;
+        });
+      },
+      children: [
+        MapPage(), Facts(), Food(), Facts(),
+      ],),
     );
   }
 }
+
