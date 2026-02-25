@@ -15,7 +15,7 @@ class _FactsState extends State<Facts> {
   String dogFact = prefs.getString('factDog') ?? 'Ничего не найдено :(';
   String catFact = prefs.getString('factCat') ?? 'Ничего не найдено :(';
   String imageFox = prefs.getString('imageFox') ?? '';
-  String imageDog = prefs.getString('imageFox') ?? '';
+  String imageDog = prefs.getString('imageDog') ?? '';
 
   void getFactsDogs() async {
     var response = await network.getFactsDogs();
@@ -77,7 +77,7 @@ class _FactsState extends State<Facts> {
       String urlImage = images['url'];
       print(urlImage);
 
-      await prefs.setString('imageFox', urlImage);
+      await prefs.setString('imageDog', urlImage);
 
       setState(() {
         imageDog = urlImage;
@@ -187,8 +187,6 @@ class _FactsState extends State<Facts> {
               ),
               SizedBox(height: 20),
               CachedNetworkImage(
-                height: 100,
-                width: 100,
                 imageUrl: imageFox,
                 placeholder: (context, url) => CircularProgressIndicator(
                   color: Colors.black,
@@ -228,8 +226,6 @@ class _FactsState extends State<Facts> {
               ),
               SizedBox(height: 20),
               CachedNetworkImage(
-                height: 100,
-                width: 100,
                 imageUrl: imageDog,
                 placeholder: (context, url) => CircularProgressIndicator(
                   color: Colors.black,
@@ -237,6 +233,22 @@ class _FactsState extends State<Facts> {
                 ),
                 errorWidget: (context, url, error) => Icon(Icons.error),
               ),
+              // CachedNetworkImage(
+              //   height: 100,
+              //   width: 100,
+              //   imageUrl: imageDog,
+              //   progressIndicatorBuilder: (context, url, downloadProgress) {
+              //     print(
+              //       downloadProgress.downloaded.toString() +
+              //           '/' +
+              //           downloadProgress.totalSize.toString(),
+              //     );
+              //     return CircularProgressIndicator(
+              //       value: downloadProgress.progress,
+              //     );
+              //   },
+              //   errorWidget: (context, url, error) => Icon(Icons.error),
+              // ),
               SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
